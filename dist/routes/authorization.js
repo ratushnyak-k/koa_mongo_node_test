@@ -33,7 +33,9 @@ _router2.default.post('/signup', async function (ctx, next) {
       password: _bcryptjs2.default.hashSync(ctx.request.body.password, 10),
       displayName: ctx.request.body.displayName
     });
-    ctx.body = user;
+    ctx.body = {
+      detail: 'Ok'
+    };
     var transporter = _nodemailer2.default.createTransport({
       service: 'Gmail',
       auth: {
@@ -41,7 +43,8 @@ _router2.default.post('/signup', async function (ctx, next) {
         pass: 'telez102938'
       }
     });
-    var link = 'http://localhost:3000/activate-account?token=' + _jsonwebtoken2.default.sign({ user: user }, 'secret', { expiresIn: 7200 });
+    // TODO: Replace domain.
+    var link = 'http://localhost:3000/activate-account?token=' + _jsonwebtoken2.default.sign({ user: user }, 'secret', { expiresIn: 7200 }) + '&id=' + user._id;
     var mailOptions = {
       from: 'mr.ratusha@example.com',
       to: user.email,
@@ -81,7 +84,7 @@ _router2.default.post('/signin', async function (ctx, next) {
       var token = _jsonwebtoken2.default.sign({ user: user }, 'secret', { expiresIn: 7200 });
       ctx.body = {
         token: token,
-        userId: user._id
+        user: user
       };
     }
   } catch (err) {
