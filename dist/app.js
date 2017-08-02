@@ -20,6 +20,10 @@ var _koaCors = require('koa-cors');
 
 var _koaCors2 = _interopRequireDefault(_koaCors);
 
+var _config = require('../config/');
+
+var _config2 = _interopRequireDefault(_config);
+
 var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
@@ -39,7 +43,7 @@ var _users2 = _interopRequireDefault(_users);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var app = new _koa2.default();
-app.use((0, _koaCors2.default)());
+app.use(_koaCors2.default);
 app.use((0, _koaLogger2.default)());
 app.use((0, _koaBodyparser2.default)());
 
@@ -53,8 +57,10 @@ app.use(_authorization2.default.routes());
 app.use(_users2.default.routes());
 
 _mongoose2.default.Promise = Promise;
-_mongoose2.default.set('debug', true);
-_mongoose2.default.connect('mongodb://admin:adminpassword@ds129013.mlab.com:29013/test_koa_db', {
+if (process.env.NODE_ENV === 'development') {
+  _mongoose2.default.set('debug', true);
+}
+_mongoose2.default.connect(_config2.default.getDbConnectionString(), {
   useMongoClient: true
 });
 _mongoose2.default.connection.on('error', console.error);
