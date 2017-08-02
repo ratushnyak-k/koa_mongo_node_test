@@ -4,10 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _nodemailer = require('nodemailer');
-
-var _nodemailer2 = _interopRequireDefault(_nodemailer);
-
 var _user = require('../models/user');
 
 var _user2 = _interopRequireDefault(_user);
@@ -26,6 +22,7 @@ var _jsonwebtoken2 = _interopRequireDefault(_jsonwebtoken);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+//import nodemailer from 'nodemailer';
 _router2.default.post('/signup', async function (ctx, next) {
   try {
     var user = await _user2.default.create({
@@ -33,28 +30,31 @@ _router2.default.post('/signup', async function (ctx, next) {
       password: _bcryptjs2.default.hashSync(ctx.request.body.password, 10),
       displayName: ctx.request.body.displayName
     });
-    ctx.body = {
-      detail: 'Ok'
-    };
-    var transporter = _nodemailer2.default.createTransport({
-      service: 'Gmail',
-      auth: {
-        user: 'kostyaexample007@gmail.com',
-        pass: 'telez102938'
-      }
-    });
 
-    // TODO: Replace domain.
-    var link = 'http://localhost:3000/activate-account?token=' + _jsonwebtoken2.default.sign({ user: user }, 'secret', { expiresIn: 7200 }) + '&id=' + user._id;
-    var mailOptions = {
-      from: 'mr.ratusha@example.com',
-      to: user.email,
-      subject: 'Email confirmation',
-      html: '\n        <h1>To confirm you sign up click on link below</h1>\n        <a href="' + link + '">' + link + '</a>\n      '
+    ctx.body = {
+      user: user,
+      token: _jsonwebtoken2.default.sign({ user: user }, 'secret')
     };
-    transporter.sendMail(mailOptions, function (error, info) {
-      console.log(error, info);
-    });
+    //const transporter = nodemailer.createTransport({
+    //  service: 'Gmail',
+    //  auth: {
+    //    user: 'kostyaexample007@gmail.com',
+    //    pass: 'telez102938',
+    //  },
+    //});
+    //
+    //// TODO: Replace domain.
+    //const link = `http://localhost:3000/activate-account?token=${jwt.sign({user}, 'secret', {expiresIn: 7200})}&id=${user._id}`;
+    //const mailOptions = {
+    //  from: 'mr.ratusha@example.com',
+    //  to: user.email,
+    //  subject: 'Email confirmation',
+    //  html: `
+    //    <h1>To confirm you sign up click on link below</h1>
+    //    <a href="${link}">${link}</a>
+    //  `,
+    //};
+    //transporter.sendMail(mailOptions, (error, info) => {console.log(error, info);});
   } catch (err) {
     console.log(err);
     ctx.status = 400;
@@ -82,7 +82,7 @@ _router2.default.post('/signin', async function (ctx, next) {
       };
     } else {
 
-      var token = _jsonwebtoken2.default.sign({ user: user }, 'secret', { expiresIn: 7200 });
+      var token = _jsonwebtoken2.default.sign({ user: user }, 'secret');
       ctx.body = {
         token: token,
         user: user
