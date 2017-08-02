@@ -52,7 +52,7 @@ _router2.default.get('/users/get', async function (ctx, next) {
     var query = ctx.request.query;
 
     var queries = {
-      displayName: new RegExp('' + (query.displayName || ''))
+      displayName: new RegExp('' + (query.displayName || ''), 'ig')
     };
     var options = {
       skip: +query.skip || 0,
