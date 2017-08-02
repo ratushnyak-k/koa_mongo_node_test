@@ -54,4 +54,16 @@ _router2.default.get('/users/get', async function (ctx, next) {
   }
 });
 
+_router2.default.get('/users/:_id', async function (ctx, next) {
+  try {
+    var _id = ctx.params._id;
+
+    ctx.body = await _user2.default.findOne({ _id: _id });
+  } catch (error) {
+    console.log(error);
+    ctx.status = 404;
+    ctx.body = 'nothing found';
+  }
+});
+
 exports.default = _router2.default;

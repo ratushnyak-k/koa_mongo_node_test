@@ -43,7 +43,9 @@ var _users2 = _interopRequireDefault(_users);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var app = new _koa2.default();
-app.use((0, _koaCors2.default)());
+if (process.env.NODE_ENV !== 'development') {
+  app.use((0, _koaCors2.default)());
+}
 app.use((0, _koaLogger2.default)());
 app.use((0, _koaBodyparser2.default)());
 
