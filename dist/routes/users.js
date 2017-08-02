@@ -33,6 +33,20 @@ _router2.default.use('/users', async function (ctx, next) {
   }
 });
 
+_router2.default.get('/users', async function (ctx, next) {
+  try {
+    ctx.body = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret');
+  } catch (error) {
+    console.log(error);
+    ctx.status = 401;
+    ctx.body = {
+      errors: {
+        detail: ['Incorrect token']
+      }
+    };
+  }
+});
+
 _router2.default.get('/users/get', async function (ctx, next) {
   try {
     var query = ctx.request.query;
