@@ -43,6 +43,7 @@ _router2.default.post('/signup', async function (ctx, next) {
         pass: 'telez102938'
       }
     });
+
     // TODO: Replace domain.
     var link = 'http://localhost:3000/activate-account?token=' + _jsonwebtoken2.default.sign({ user: user }, 'secret', { expiresIn: 7200 }) + '&id=' + user._id;
     var mailOptions = {
