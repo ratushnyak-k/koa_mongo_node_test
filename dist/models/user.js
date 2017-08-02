@@ -40,6 +40,9 @@ var userSchema = new _mongoose2.default.Schema({
   password: {
     type: String,
     required: true
+  },
+  photo: {
+    type: String
   }
 });
 userSchema.plugin(_mongooseUniqueValidator2.default);
