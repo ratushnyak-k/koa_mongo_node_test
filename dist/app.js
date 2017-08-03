@@ -62,7 +62,7 @@ _mongoose2.default.Promise = Promise;
 if (process.env.NODE_ENV === 'development') {
   _mongoose2.default.set('debug', true);
 }
-_mongoose2.default.connect(_config2.default.getDbConnectionString(), {
+_mongoose2.default.connect(process.env.NODE_ENV === 'development' ? _config2.default.getDevelopDbConnectionString() : _config2.default.getProductionDbConnectionString(), {
   useMongoClient: true
 });
 _mongoose2.default.connection.on('error', console.error);

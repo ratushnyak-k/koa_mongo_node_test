@@ -35,7 +35,9 @@ _router2.default.use('/users', async function (ctx, next) {
 
 _router2.default.get('/users', async function (ctx, next) {
   try {
-    ctx.body = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user;
+    var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+
+    ctx.body = await _user2.default.findOne({ _id: _id });
   } catch (error) {
     console.log(error);
     ctx.status = 401;
@@ -44,6 +46,22 @@ _router2.default.get('/users', async function (ctx, next) {
         detail: ['Incorrect token']
       }
     };
+  }
+});
+
+_router2.default.put('/users', async function (ctx, next) {
+  try {
+    var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+
+    var data = ctx.request.body;
+    delete data.email;
+    delete data.password;
+    await _user2.default.findOneAndUpdate({ _id: _id }, data, { runValidators: true, select: '-password' });
+    ctx.body = data;
+  } catch (error) {
+    console.log(error);
+    ctx.status = 401;
+    ctx.body = error;
   }
 });
 

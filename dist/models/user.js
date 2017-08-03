@@ -43,7 +43,31 @@ var userSchema = new _mongoose2.default.Schema({
   },
   photo: {
     type: String
+  },
+  location: {
+    street: {
+      type: String
+    },
+    city: {
+      type: String
+    },
+    state: {
+      type: String
+    },
+    postcode: {
+      type: Number
+    }
+  },
+  gender: {
+    type: String
+  },
+  dob: {
+    type: Date
+  },
+  phone: {
+    type: String
   }
+
 });
 userSchema.plugin(_mongooseUniqueValidator2.default);
 userSchema.plugin(_mongoosePaginate2.default);
