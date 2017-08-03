@@ -55,7 +55,7 @@ var userSchema = new _mongoose2.default.Schema({
       type: String
     },
     postcode: {
-      type: Number
+      type: String
     }
   },
   gender: {
