@@ -46,16 +46,20 @@ var userSchema = new _mongoose2.default.Schema({
   },
   location: {
     street: {
-      type: String
+      type: String,
+      default: ''
     },
     city: {
-      type: String
+      type: String,
+      default: ''
     },
     state: {
-      type: String
+      type: String,
+      default: ''
     },
     postcode: {
-      type: String
+      type: String,
+      default: ''
     }
   },
   gender: {
