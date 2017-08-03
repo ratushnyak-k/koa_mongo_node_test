@@ -76,7 +76,7 @@ _router2.default.get('/users/get', async function (ctx, next) {
       skip: +query.skip || 0,
       limit: +query.limit || 10,
       offset: +query.offset || 0,
-      select: '-password'
+      select: '-password -email -gender -location'
     };
     ctx.body = await _user2.default.paginate(queries, options);
   } catch (error) {
