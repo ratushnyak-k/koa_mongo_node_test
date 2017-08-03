@@ -25,7 +25,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //import nodemailer from 'nodemailer';
 _router2.default.post('/signup', async function (ctx, next) {
   try {
-    var user = await _user2.default.create(ctx.request.body);
+    var data = ctx.request.body;
+    data.password = _bcryptjs2.default.hashSync(ctx.request.body.password, 10);
+
+    var user = await _user2.default.create(data);
 
     ctx.body = {
       user: user,
