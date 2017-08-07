@@ -98,7 +98,7 @@ _router2.default.get('/users/:_id', async function (ctx, next) {
   try {
     var _id = ctx.params._id;
 
-    ctx.body = await _user2.default.findOne({ _id: _id });
+    ctx.body = await _user2.default.findOne({ _id: _id }).select('-password');
   } catch (error) {
     console.log(error);
     ctx.status = 404;
