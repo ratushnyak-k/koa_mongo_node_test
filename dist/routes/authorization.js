@@ -26,6 +26,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 _router2.default.post('/signup', async function (ctx, next) {
   try {
     var data = ctx.request.body;
+    // TODO: rewrite validation password to user model
     data.password = _bcryptjs2.default.hashSync(ctx.request.body.password, 10);
 
     var user = await _user2.default.create(data);
@@ -69,14 +70,18 @@ _router2.default.post('/signin', async function (ctx, next) {
       ctx.status = 404;
       ctx.body = {
         errors: {
-          email: ['User with this email doesn\'t exist']
+          email: {
+            message: 'User with this email doesn\'t exist'
+          }
         }
       };
     } else if (!_bcryptjs2.default.compareSync(ctx.request.body.password, user.password)) {
       ctx.status = 400;
       ctx.body = {
         errors: {
-          password: ['Incorrect password']
+          displayName: {
+            message: 'Incorrect password'
+          }
         }
       };
     } else {
