@@ -42,7 +42,8 @@ var userSchema = new _mongoose2.default.Schema({
     required: true
   },
   photo: {
-    type: String
+    type: String,
+    default: ''
   },
   location: {
     street: {
@@ -63,13 +64,16 @@ var userSchema = new _mongoose2.default.Schema({
     }
   },
   gender: {
-    type: String
+    type: String,
+    default: ''
   },
   dob: {
-    type: Date
+    type: Date,
+    default: ''
   },
   phone: {
-    type: String
+    type: String,
+    default: ''
   }
 
 });
