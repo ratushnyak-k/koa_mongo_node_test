@@ -37,7 +37,7 @@ _router2.default.get('/users', async function (ctx, next) {
   try {
     var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
 
-    var user = await _user2.default.findOne({ _id: _id });
+    var user = await _user2.default.findOne({ _id: _id }).select('-password');
     if (user) {
       ctx.body = user;
     } else {
