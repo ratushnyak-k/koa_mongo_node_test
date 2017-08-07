@@ -37,7 +37,15 @@ _router2.default.get('/users', async function (ctx, next) {
   try {
     var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
 
-    ctx.body = await _user2.default.findOne({ _id: _id });
+    var user = await _user2.default.findOne({ _id: _id });
+    if (user) {
+      ctx.body = user;
+    } else {
+      ctx.status = 404;
+      ctx.body = {
+        detail: 'Not found'
+      };
+    }
   } catch (error) {
     console.log(error);
     ctx.status = 401;
@@ -56,8 +64,8 @@ _router2.default.put('/users', async function (ctx, next) {
     var data = ctx.request.body;
     delete data.email;
     delete data.password;
-    await _user2.default.findOneAndUpdate({ _id: _id }, data, { runValidators: true, select: '-password' });
-    ctx.body = data;
+    await _user2.default.update({ _id: _id }, data, { runValidators: true });
+    ctx.body = await _user2.default.findOne({ _id: _id }).select('-password');
   } catch (error) {
     console.log(error);
     ctx.status = 401;
