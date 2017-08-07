@@ -79,7 +79,7 @@ _router2.default.post('/signin', async function (ctx, next) {
       ctx.status = 400;
       ctx.body = {
         errors: {
-          displayName: {
+          password: {
             message: 'Incorrect password'
           }
         }
