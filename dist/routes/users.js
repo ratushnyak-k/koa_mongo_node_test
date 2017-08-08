@@ -12,9 +12,9 @@ var _jsonwebtoken = require('jsonwebtoken');
 
 var _jsonwebtoken2 = _interopRequireDefault(_jsonwebtoken);
 
-var _user = require('../models/user');
+var _User = require('../models/User');
 
-var _user2 = _interopRequireDefault(_user);
+var _User2 = _interopRequireDefault(_User);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -37,7 +37,7 @@ _router2.default.get('/users', async function (ctx, next) {
   try {
     var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
 
-    var user = await _user2.default.findOne({ _id: _id }).select('-password');
+    var user = await _User2.default.findOne({ _id: _id }).select('-password');
     if (user) {
       ctx.body = user;
     } else {
@@ -64,8 +64,8 @@ _router2.default.put('/users', async function (ctx, next) {
     var data = ctx.request.body;
     delete data.email;
     delete data.password;
-    await _user2.default.update({ _id: _id }, data, { runValidators: true });
-    ctx.body = await _user2.default.findOne({ _id: _id }).select('-password');
+    await _User2.default.update({ _id: _id }, data, { runValidators: true });
+    ctx.body = await _User2.default.findOne({ _id: _id }).select('-password');
   } catch (error) {
     console.log(error);
     ctx.status = 401;
@@ -86,7 +86,7 @@ _router2.default.get('/users/get', async function (ctx, next) {
       offset: +query.offset || 0,
       select: '-password -email -gender -location'
     };
-    ctx.body = await _user2.default.paginate(queries, options);
+    ctx.body = await _User2.default.paginate(queries, options);
   } catch (error) {
     console.log(error);
     ctx.status = 404;
@@ -98,7 +98,7 @@ _router2.default.get('/users/:_id', async function (ctx, next) {
   try {
     var _id = ctx.params._id;
 
-    ctx.body = await _user2.default.findOne({ _id: _id }).select('-password');
+    ctx.body = await _User2.default.findOne({ _id: _id }).select('-password');
   } catch (error) {
     console.log(error);
     ctx.status = 404;

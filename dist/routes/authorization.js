@@ -4,9 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _user = require('../models/user');
+var _User = require('../models/User');
 
-var _user2 = _interopRequireDefault(_user);
+var _User2 = _interopRequireDefault(_User);
 
 var _router = require('../router');
 
@@ -29,7 +29,7 @@ _router2.default.post('/signup', async function (ctx, next) {
     // TODO: rewrite validation password to user model
     data.password = _bcryptjs2.default.hashSync(ctx.request.body.password, 10);
 
-    var user = await _user2.default.create(data);
+    var user = await _User2.default.create(data);
 
     ctx.body = {
       user: user,
@@ -64,7 +64,7 @@ _router2.default.post('/signup', async function (ctx, next) {
 
 _router2.default.post('/signin', async function (ctx, next) {
   try {
-    var user = await _user2.default.findOne({ email: ctx.request.body.email });
+    var user = await _User2.default.findOne({ email: ctx.request.body.email });
 
     if (!user) {
       ctx.status = 404;

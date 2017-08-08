@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 var _app = require('../' + (process.env.NODE_ENV === 'development' ? 'src' : 'dist') +'/app').default;
-
+var http = require('http');
 var debug = require('debug')('node-test:server');
 
 /**
@@ -22,11 +22,20 @@ var port = normalizePort(process.env.PORT || '4000');
 /**
  * Listen on provided port, on all network interfaces.
  */
+var server = http.createServer(_app.callback());
 
-var server = _app.listen(port);
+var io = require('socket.io')(server);
+
+server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+io.on('connection', function(socket){
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});
 /**
  * Normalize a port into a number, string, or false.
  */

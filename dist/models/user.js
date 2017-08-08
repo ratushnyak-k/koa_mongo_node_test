@@ -74,8 +74,11 @@ var userSchema = new _mongoose2.default.Schema({
   phone: {
     type: String,
     default: ''
-  }
-
+  },
+  messages: [{
+    type: _mongoose2.default.Schema.Types.ObjectId,
+    ref: 'Message'
+  }]
 });
 userSchema.plugin(_mongooseUniqueValidator2.default);
 userSchema.plugin(_mongoosePaginate2.default);
