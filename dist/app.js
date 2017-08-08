@@ -8,6 +8,10 @@ var _koa = require('koa');
 
 var _koa2 = _interopRequireDefault(_koa);
 
+var _http = require('http');
+
+var _http2 = _interopRequireDefault(_http);
+
 var _koaBodyparser = require('koa-bodyparser');
 
 var _koaBodyparser2 = _interopRequireDefault(_koaBodyparser);
@@ -23,6 +27,10 @@ var _koaCors2 = _interopRequireDefault(_koaCors);
 var _config = require('../config/');
 
 var _config2 = _interopRequireDefault(_config);
+
+var _socket = require('socket.io');
+
+var _socket2 = _interopRequireDefault(_socket);
 
 var _mongoose = require('mongoose');
 
@@ -46,6 +54,10 @@ var app = new _koa2.default();
 if (process.env.NODE_ENV !== 'development') {
   app.use((0, _koaCors2.default)());
 }
+
+var server = _http2.default.createServer(app.callback());
+var io = (0, _socket2.default)(server);
+
 app.use((0, _koaLogger2.default)());
 app.use((0, _koaBodyparser2.default)());
 
@@ -67,4 +79,10 @@ _mongoose2.default.connect(process.env.NODE_ENV === 'development' ? _config2.def
 });
 _mongoose2.default.connection.on('error', console.error);
 
+io.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});
 exports.default = app;
