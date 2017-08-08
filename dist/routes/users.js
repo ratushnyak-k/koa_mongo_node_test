@@ -80,6 +80,9 @@ _router2.default.get('/users/get', async function (ctx, next) {
     var queries = {
       displayName: new RegExp('' + (query.displayName || ''), 'ig')
     };
+    if (query.gender) {
+      queries.gender = query.gender;
+    }
     var options = {
       skip: +query.skip || 0,
       limit: +query.limit || 10,

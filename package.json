@@ -5,7 +5,7 @@
   "main": "./bin/www",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon --exec babel-node ./bin/www",
-    "build": "babel src --out-dir dist",
+    "build": "rm -rf dist && babel src --out-dir dist",
     "start": "node ./bin/www"
   },
   "author": "",

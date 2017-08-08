@@ -75,9 +75,9 @@ var userSchema = new _mongoose2.default.Schema({
     type: String,
     default: ''
   },
-  messages: [{
+  friends: [{
     type: _mongoose2.default.Schema.Types.ObjectId,
-    ref: 'Message'
+    ref: 'Friends'
   }]
 });
 userSchema.plugin(_mongooseUniqueValidator2.default);
