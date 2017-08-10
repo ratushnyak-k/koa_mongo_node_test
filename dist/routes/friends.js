@@ -50,6 +50,7 @@ _router2.default.post('/friends/request/:userId', async function (ctx, next) {
             }
           };
         } else {
+
           user.friendRequest(userId, function (err, res) {
             if (err) {
               ctx.body = {

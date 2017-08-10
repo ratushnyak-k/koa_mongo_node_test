@@ -35,6 +35,7 @@ router.post('/friends/request/:userId', async (ctx, next) => {
             },
           };
         } else {
+
           user.friendRequest(userId, (err, res) => {
             if (err) {
               ctx.body = {
