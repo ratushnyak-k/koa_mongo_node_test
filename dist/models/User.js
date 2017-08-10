@@ -16,13 +16,21 @@ var _mongoosePaginate = require('mongoose-paginate');
 
 var _mongoosePaginate2 = _interopRequireDefault(_mongoosePaginate);
 
+var _friendsOfFriends = require('friends-of-friends');
+
+var _friendsOfFriends2 = _interopRequireDefault(_friendsOfFriends);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var validateEmail = function validateEmail(email) {
   var re = /^[a-z0-9_\-\.]{2,}@[a-z0-9_\-\.]{2,}\.[a-z]{2,}$/i;
   return re.test(email);
 };
-
+var options = {
+  personModelName: 'User',
+  friendshipModelName: 'Friendship'
+};
+var mongooseFriends = new _friendsOfFriends2.default(_mongoose2.default, options);
 var userSchema = new _mongoose2.default.Schema({
   displayName: {
     type: String,
@@ -74,13 +82,10 @@ var userSchema = new _mongoose2.default.Schema({
   phone: {
     type: String,
     default: ''
-  },
-  friends: [{
-    type: _mongoose2.default.Schema.Types.ObjectId,
-    ref: 'Friends'
-  }]
+  }
 });
 userSchema.plugin(_mongooseUniqueValidator2.default);
 userSchema.plugin(_mongoosePaginate2.default);
+userSchema.plugin(mongooseFriends.plugin, options);
 
-exports.default = _mongoose2.default.model('User', userSchema);
+exports.default = _mongoose2.default.model(options.personModelName, userSchema);

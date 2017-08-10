@@ -27,34 +27,41 @@ _router2.default.use('/users', async function (ctx, next) {
     ctx.status = 401;
     ctx.body = {
       errors: {
-        detail: ['Incorrect token']
+        detail: 'Incorrect token'
       }
     };
   }
 });
 
 _router2.default.get('/users', async function (ctx, next) {
-  try {
-    var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+  var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
 
-    var user = await _User2.default.findOne({ _id: _id }).select('-password');
-    if (user) {
-      ctx.body = user;
-    } else {
-      ctx.status = 404;
-      ctx.body = {
-        detail: 'Not found'
-      };
-    }
-  } catch (error) {
-    console.log(error);
-    ctx.status = 401;
-    ctx.body = {
-      errors: {
-        detail: ['Incorrect token']
-      }
-    };
-  }
+  var user = await _User2.default.findOne({ _id: _id }).select('-password');
+  //await new Promise((resolved, rejected) => {
+  //
+  //  try {
+  //    if (user) {
+  //
+  //      user.getFriends((err, res) => {
+  ctx.body = user;
+  //        resolved();
+  //      });
+  //    } else {
+  //      ctx.status = 404;
+  //      ctx.body = {
+  //        detail: 'Not found',
+  //      };
+  //    }
+  //  } catch (error) {
+  //    console.log(error);
+  //    ctx.status = 401;
+  //    ctx.body = {
+  //      errors: {
+  //        detail: 'Incorrect token',
+  //      },
+  //    };
+  //  }
+  //});
 });
 
 _router2.default.put('/users', async function (ctx, next) {
@@ -87,7 +94,8 @@ _router2.default.get('/users/get', async function (ctx, next) {
       skip: +query.skip || 0,
       limit: +query.limit || 10,
       offset: +query.offset || 0,
-      select: '-password -email -gender -location'
+      select: '-password -email -gender -location',
+      populate: 'friendships'
     };
     ctx.body = await _User2.default.paginate(queries, options);
   } catch (error) {
@@ -102,6 +110,18 @@ _router2.default.get('/users/:_id', async function (ctx, next) {
     var _id = ctx.params._id;
 
     ctx.body = await _User2.default.findOne({ _id: _id }).select('-password');
+  } catch (error) {
+    console.log(error);
+    ctx.status = 404;
+    ctx.body = 'nothing found';
+  }
+});
+
+_router2.default.delete('/users/', async function (ctx, next) {
+  try {
+    var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+
+    ctx.body = await _User2.default.remove({ _id: _id });
   } catch (error) {
     console.log(error);
     ctx.status = 404;

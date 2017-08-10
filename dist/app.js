@@ -40,6 +40,10 @@ var _users = require('./routes/users');
 
 var _users2 = _interopRequireDefault(_users);
 
+var _friends = require('./routes/friends');
+
+var _friends2 = _interopRequireDefault(_friends);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var app = new _koa2.default();
@@ -58,6 +62,7 @@ app.use(async function (ctx, next) {
 app.use(_index2.default.routes());
 app.use(_authorization2.default.routes());
 app.use(_users2.default.routes());
+app.use(_friends2.default.routes());
 
 _mongoose2.default.Promise = Promise;
 if (process.env.NODE_ENV === 'development') {
