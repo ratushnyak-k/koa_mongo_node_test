@@ -18,12 +18,28 @@ router.use('/friends', async (ctx, next) => {
   }
 });
 
+const statusMatcher = (status) => {
+  let number;
+  switch (status) {
+    case 'Pending':
+      number = 2;
+      break;
+    case 'Accepted':
+      number = 3;
+      break;
+    case undefined:
+    default:
+      number = 0;
+      break;
+  }
+  return number;
+};
 
 router.post('/friends/request/:userId', async (ctx, next) => {
   try {
 
     const {_id} = jwt.verify(ctx.request.header.authorization, 'secret').user;
-    const user = await User.findOne({_id});
+    const user = await User.findById(_id);
     const {userId} = ctx.params;
 
     await new Promise((resolve, reject) => {
@@ -44,12 +60,15 @@ router.post('/friends/request/:userId', async (ctx, next) => {
               reject();
               console.error(err);
             } else {
-
-              ctx.body = {
+              let response = {
                 dateSent: res.dateSent,
                 status: res.status,
                 _id: res._id,
               };
+
+              response.status = statusMatcher(res.status);
+              console.log(response);
+              ctx.body = response;
               resolve();
             }
           });
@@ -92,12 +111,15 @@ router.post('/friends/accept/:userId', async (ctx, next) => {
               reject();
               console.error(err);
             } else {
-
-              ctx.body = {
+              let response = {
                 dateSent: res.dateSent,
                 status: res.status,
                 _id: res._id,
               };
+
+              response.status = statusMatcher(res.status);
+              console.log(response);
+              ctx.body = response;
               resolve();
             }
           });
@@ -140,12 +162,15 @@ router.post('/friends/cancel/:userId', async (ctx, next) => {
               reject();
               console.error(err);
             } else {
-
-              ctx.body = {
+              let response = {
                 dateSent: res.dateSent,
                 status: res.status,
                 _id: res._id,
               };
+
+              response.status = statusMatcher(res.status);
+              console.log(response);
+              ctx.body = response;
               resolve();
             }
           });
@@ -188,12 +213,66 @@ router.post('/friends/deny/:userId', async (ctx, next) => {
               reject();
               console.error(err);
             } else {
-
-              ctx.body = {
+              let response = {
                 dateSent: res.dateSent,
                 status: res.status,
                 _id: res._id,
               };
+
+              response.status = statusMatcher(res.status);
+              console.log(response);
+              ctx.body = response;
+              resolve();
+            }
+          });
+        }
+      } catch (error) {
+        ctx.body = {
+          detail: 'Error',
+        };
+        console.log(error);
+        reject();
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.post('/friends/remove/:userId', async (ctx, next) => {
+  try {
+
+    const {_id} = jwt.verify(ctx.request.header.authorization, 'secret').user;
+    const user = await User.findOne({_id});
+    const {userId} = ctx.params;
+
+    await new Promise((resolve, reject) => {
+      try {
+        if (_id === userId) {
+          ctx.body = {
+            errors: {
+              detail: 'You can\'t make friend request to yourself',
+            },
+          };
+        } else {
+
+          user.endFriendship(userId, (err, res) => {
+            if (err) {
+              ctx.body = {
+                detail: 'Error: A pending request already exists',
+              };
+              reject();
+              console.error(err);
+            } else {
+              let response = {
+                dateSent: res.dateSent,
+                status: res.status,
+                _id: res._id,
+              };
+
+              response.status = statusMatcher(res.status);
+              console.log(response);
+              ctx.body = response;
               resolve();
             }
           });
