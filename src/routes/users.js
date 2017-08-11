@@ -21,32 +21,7 @@ router.use('/users', async (ctx, next) => {
 router.get('/users', async (ctx, next) => {
   const {_id} = jwt.verify(ctx.request.header.authorization, 'secret').user;
 
-  const user = await User.findOne({_id}).select('-password');
-  //await new Promise((resolved, rejected) => {
-  //
-  //  try {
-  //    if (user) {
-  //
-  //      user.getFriends((err, res) => {
-          ctx.body = user;
-  //        resolved();
-  //      });
-  //    } else {
-  //      ctx.status = 404;
-  //      ctx.body = {
-  //        detail: 'Not found',
-  //      };
-  //    }
-  //  } catch (error) {
-  //    console.log(error);
-  //    ctx.status = 401;
-  //    ctx.body = {
-  //      errors: {
-  //        detail: 'Incorrect token',
-  //      },
-  //    };
-  //  }
-  //});
+  ctx.body = await User.findOne({_id}).select('-password');
 });
 
 router.put('/users', async (ctx, next) => {
@@ -68,6 +43,8 @@ router.put('/users', async (ctx, next) => {
 });
 
 router.get('/users/get', async (ctx, next) => {
+  const {_id} = jwt.verify(ctx.request.header.authorization, 'secret').user;
+  const user = await User.findById(_id);
   try {
     const {query} = ctx.request;
     const queries = {
@@ -81,14 +58,34 @@ router.get('/users/get', async (ctx, next) => {
       limit: +query.limit || 10,
       offset: +query.offset || 0,
       select: '-password -email -gender -location',
-      populate: 'friendships'
     };
-    ctx.body = await User.paginate(queries, options);
+    let users = await User.paginate(queries, options);
+
+    const usersPromises = users.docs.map((item) => {
+      return new Promise((resolve, reject) => {
+        user.getRelationship(item._id, (err, res) => {
+          if (err) {
+            ctx.body = {
+              detail: 'Error',
+            };
+            console.error(err);
+            reject();
+          } else {
+            let user = item.toObject();
+            user.status = res;
+            resolve(user);
+          }
+        });
+      });
+    });
+    ctx.body = await Promise.all(usersPromises);
 
   } catch (error) {
     console.log(error);
     ctx.status = 404;
-    ctx.body = 'nothing found';
+    ctx.body = {
+      detail: 'nothing found',
+    };
   }
 });
 

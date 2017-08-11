@@ -82,7 +82,12 @@ var userSchema = new _mongoose2.default.Schema({
   phone: {
     type: String,
     default: ''
+  },
+  friends: {
+    type: _mongoose2.default.Schema.ObjectId,
+    ref: options.friendshipModelName
   }
+
 });
 userSchema.plugin(_mongooseUniqueValidator2.default);
 userSchema.plugin(_mongoosePaginate2.default);

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import mongooseUniqueValidator from 'mongoose-unique-validator';
 import mangoosePaginate from 'mongoose-paginate';
 import MangooseFOF from 'friends-of-friends';
+
 const validateEmail = (email) => {
   const re = /^[a-z0-9_\-\.]{2,}@[a-z0-9_\-\.]{2,}\.[a-z]{2,}$/i;
   return re.test(email);
@@ -63,6 +64,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  friends:
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: options.friendshipModelName,
+    }
+  ,
 });
 userSchema.plugin(mongooseUniqueValidator);
 userSchema.plugin(mangoosePaginate);

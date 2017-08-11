@@ -36,32 +36,7 @@ _router2.default.use('/users', async function (ctx, next) {
 _router2.default.get('/users', async function (ctx, next) {
   var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
 
-  var user = await _User2.default.findOne({ _id: _id }).select('-password');
-  //await new Promise((resolved, rejected) => {
-  //
-  //  try {
-  //    if (user) {
-  //
-  //      user.getFriends((err, res) => {
-  ctx.body = user;
-  //        resolved();
-  //      });
-  //    } else {
-  //      ctx.status = 404;
-  //      ctx.body = {
-  //        detail: 'Not found',
-  //      };
-  //    }
-  //  } catch (error) {
-  //    console.log(error);
-  //    ctx.status = 401;
-  //    ctx.body = {
-  //      errors: {
-  //        detail: 'Incorrect token',
-  //      },
-  //    };
-  //  }
-  //});
+  ctx.body = await _User2.default.findOne({ _id: _id }).select('-password');
 });
 
 _router2.default.put('/users', async function (ctx, next) {
@@ -81,6 +56,9 @@ _router2.default.put('/users', async function (ctx, next) {
 });
 
 _router2.default.get('/users/get', async function (ctx, next) {
+  var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+
+  var user = await _User2.default.findById(_id);
   try {
     var query = ctx.request.query;
 
@@ -94,14 +72,34 @@ _router2.default.get('/users/get', async function (ctx, next) {
       skip: +query.skip || 0,
       limit: +query.limit || 10,
       offset: +query.offset || 0,
-      select: '-password -email -gender -location',
-      populate: 'friendships'
+      select: '-password -email -gender -location'
     };
-    ctx.body = await _User2.default.paginate(queries, options);
+    var users = await _User2.default.paginate(queries, options);
+
+    var usersPromises = users.docs.map(function (item) {
+      return new Promise(function (resolve, reject) {
+        user.getRelationship(item._id, function (err, res) {
+          if (err) {
+            ctx.body = {
+              detail: 'Error'
+            };
+            console.error(err);
+            reject();
+          } else {
+            var _user = item.toObject();
+            _user.status = res;
+            resolve(_user);
+          }
+        });
+      });
+    });
+    ctx.body = await Promise.all(usersPromises);
   } catch (error) {
     console.log(error);
     ctx.status = 404;
-    ctx.body = 'nothing found';
+    ctx.body = {
+      detail: 'nothing found'
+    };
   }
 });
 

@@ -54,29 +54,129 @@ _router2.default.post('/friends/request/:userId', async function (ctx, next) {
           user.friendRequest(userId, function (err, res) {
             if (err) {
               ctx.body = {
-                detail: 'Error'
+                detail: 'Error: A pending request already exists'
               };
               reject();
               console.error(err);
             } else {
-              console.log(res);
-              ctx.body = res;
+
+              ctx.body = {
+                dateSent: res.dateSent,
+                status: res.status,
+                _id: res._id
+              };
               resolve();
             }
           });
         }
       } catch (error) {
+        ctx.body = {
+          detail: 'Error'
+        };
         console.log(error);
         reject();
       }
     });
   } catch (error) {
-    ctx.status = 401;
-    ctx.body = {
-      errors: {
-        detail: 'Incorrect token'
+    console.log(error);
+  }
+});
+
+_router2.default.post('/friends/accept/:userId', async function (ctx, next) {
+  try {
+    var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+
+    var user = await _User2.default.findOne({ _id: _id });
+    var userId = ctx.params.userId;
+
+
+    await new Promise(function (resolve, reject) {
+      try {
+        if (_id === userId) {
+          ctx.body = {
+            errors: {
+              detail: 'You can\'t make friend request to yourself'
+            }
+          };
+        } else {
+
+          user.acceptRequest(userId, function (err, res) {
+            if (err) {
+              ctx.body = {
+                detail: 'Error: A pending request already exists'
+              };
+              reject();
+              console.error(err);
+            } else {
+
+              ctx.body = {
+                dateSent: res.dateSent,
+                status: res.status,
+                _id: res._id
+              };
+              resolve();
+            }
+          });
+        }
+      } catch (error) {
+        ctx.body = {
+          detail: 'Error'
+        };
+        console.log(error);
+        reject();
       }
-    };
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+_router2.default.post('/friends/cancel/:userId', async function (ctx, next) {
+  try {
+    var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+
+    var user = await _User2.default.findOne({ _id: _id });
+    var userId = ctx.params.userId;
+
+
+    await new Promise(function (resolve, reject) {
+      try {
+        if (_id === userId) {
+          ctx.body = {
+            errors: {
+              detail: 'You can\'t make friend request to yourself'
+            }
+          };
+        } else {
+
+          user.cancelRequest(userId, function (err, res) {
+            if (err) {
+              ctx.body = {
+                detail: 'Error: A pending request already exists'
+              };
+              reject();
+              console.error(err);
+            } else {
+
+              ctx.body = {
+                dateSent: res.dateSent,
+                status: res.status,
+                _id: res._id
+              };
+              resolve();
+            }
+          });
+        }
+      } catch (error) {
+        ctx.body = {
+          detail: 'Error'
+        };
+        console.log(error);
+        reject();
+      }
+    });
+  } catch (error) {
+    console.log(error);
   }
 });
 
