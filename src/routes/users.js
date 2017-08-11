@@ -78,7 +78,8 @@ router.get('/users/get', async (ctx, next) => {
         });
       });
     });
-    ctx.body = await Promise.all(usersPromises);
+    users.docs = await Promise.all(usersPromises);
+    ctx.body = users
 
   } catch (error) {
     console.log(error);

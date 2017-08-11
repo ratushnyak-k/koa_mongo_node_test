@@ -93,7 +93,8 @@ _router2.default.get('/users/get', async function (ctx, next) {
         });
       });
     });
-    ctx.body = await Promise.all(usersPromises);
+    users.docs = await Promise.all(usersPromises);
+    ctx.body = users;
   } catch (error) {
     console.log(error);
     ctx.status = 404;
