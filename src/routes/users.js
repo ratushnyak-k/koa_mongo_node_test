@@ -63,7 +63,7 @@ router.get('/users/get', async (ctx, next) => {
 
     const usersPromises = users.docs.map((item) => {
       return new Promise((resolve, reject) => {
-        user.getRelationship(item._id, (err, res) => {
+        user.getFriendship(item._id, (err, res) => {
           if (err) {
             ctx.body = {
               detail: 'Error',
@@ -72,7 +72,7 @@ router.get('/users/get', async (ctx, next) => {
             reject();
           } else {
             let user = item.toObject();
-            user.status = res;
+            user.friendshipStatus = res;
             resolve(user);
           }
         });

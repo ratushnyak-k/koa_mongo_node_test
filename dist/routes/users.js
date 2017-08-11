@@ -78,7 +78,7 @@ _router2.default.get('/users/get', async function (ctx, next) {
 
     var usersPromises = users.docs.map(function (item) {
       return new Promise(function (resolve, reject) {
-        user.getRelationship(item._id, function (err, res) {
+        user.getFriendship(item._id, function (err, res) {
           if (err) {
             ctx.body = {
               detail: 'Error'
@@ -87,7 +87,7 @@ _router2.default.get('/users/get', async function (ctx, next) {
             reject();
           } else {
             var _user = item.toObject();
-            _user.status = res;
+            _user.friendshipStatus = res;
             resolve(_user);
           }
         });
