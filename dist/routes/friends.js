@@ -347,4 +347,58 @@ _router2.default.get('/friends/get', async function (ctx, next) {
   });
 });
 
+_router2.default.get('/friends/requests/get', async function (ctx, next) {
+  var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+
+  var user = await _User2.default.findById(_id);
+  var query = ctx.request.query;
+
+  var conditions = {
+    displayName: new RegExp('' + (query.displayName || ''), 'ig')
+  };
+  if (query.gender) {
+    conditions.gender = query.gender;
+  }
+  var options = {
+    skip: +query.skip || 0,
+    limit: +query.limit || 10,
+    offset: +query.offset || 0,
+    select: '-password -email -gender -location'
+  };
+  var findParams = {
+    options: options,
+    conditions: conditions
+  };
+  await new Promise(function (resolve, reject) {
+    try {
+      user.getPendingFriends(findParams, function (err, res) {
+        if (err) {
+          ctx.body = {
+            detail: 'Error'
+          };
+          reject();
+          console.error(err);
+        } else {
+          ctx.body = {
+            docs: res,
+            total: res.length,
+            limit: options.limit,
+            offset: options.offset
+          };
+          resolve();
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      ctx.status = 401;
+      ctx.body = {
+        errors: {
+          detail: 'Incorrect token'
+        }
+      };
+      reject();
+    }
+  });
+});
+
 exports.default = _router2.default;

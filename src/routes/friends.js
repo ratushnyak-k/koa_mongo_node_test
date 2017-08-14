@@ -327,4 +327,56 @@ router.get('/friends/get', async (ctx, next) => {
 });
 
 
+router.get('/friends/requests/get', async (ctx, next) => {
+  const {_id} = jwt.verify(ctx.request.header.authorization, 'secret').user;
+  const user = await User.findById(_id);
+  const {query} = ctx.request;
+  const conditions = {
+    displayName: new RegExp(`${query.displayName || ''}`, 'ig'),
+  };
+  if (query.gender) {
+    conditions.gender = query.gender;
+  }
+  const options = {
+    skip: +query.skip || 0,
+    limit: +query.limit || 10,
+    offset: +query.offset || 0,
+    select: '-password -email -gender -location',
+  };
+  const findParams = {
+    options,
+    conditions,
+  };
+  await new Promise((resolve, reject) => {
+    try {
+      user.getPendingFriends(findParams, (err, res) => {
+        if (err) {
+          ctx.body = {
+            detail: 'Error',
+          };
+          reject();
+          console.error(err);
+        } else {
+          ctx.body = {
+            docs: res,
+            total: res.length,
+            limit: options.limit,
+            offset: options.offset,
+          };
+          resolve();
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      ctx.status = 401;
+      ctx.body = {
+        errors: {
+          detail: 'Incorrect token',
+        },
+      };
+      reject();
+    }
+  });
+});
+
 export default router;
