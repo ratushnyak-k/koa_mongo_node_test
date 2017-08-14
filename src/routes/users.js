@@ -77,7 +77,7 @@ router.get('/users/get', async (ctx, next) => {
             let user = item.toObject();
             let friendship = res ? res.toObject() : {};
             friendship.status = statusMatcher(friendship.status);
-            user.friendshipStatus = friendship;
+            user.friendship = friendship;
             resolve(user);
           }
         });
