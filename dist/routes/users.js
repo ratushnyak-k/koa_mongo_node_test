@@ -16,6 +16,8 @@ var _User = require('../models/User');
 
 var _User2 = _interopRequireDefault(_User);
 
+var _helpers = require('../utils/helpers');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 _router2.default.use('/users', async function (ctx, next) {
@@ -87,7 +89,9 @@ _router2.default.get('/users/get', async function (ctx, next) {
             reject();
           } else {
             var _user = item.toObject();
-            _user.friendshipStatus = res || {};
+            var friendship = res ? res.toObject() : {};
+            friendship.status = (0, _helpers.statusMatcher)(friendship.status);
+            _user.friendshipStatus = friendship;
             resolve(_user);
           }
         });

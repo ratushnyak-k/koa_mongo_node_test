@@ -1,6 +1,9 @@
 import router from '../router';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import {
+  statusMatcher,
+} from '../utils/helpers';
 
 router.use('/users', async (ctx, next) => {
   try {
@@ -72,14 +75,16 @@ router.get('/users/get', async (ctx, next) => {
             reject();
           } else {
             let user = item.toObject();
-            user.friendshipStatus = res || {};
+            let friendship = res ? res.toObject() : {};
+            friendship.status = statusMatcher(friendship.status);
+            user.friendshipStatus = friendship;
             resolve(user);
           }
         });
       });
     });
     users.docs = await Promise.all(usersPromises);
-    ctx.body = users
+    ctx.body = users;
 
   } catch (error) {
     console.log(error);

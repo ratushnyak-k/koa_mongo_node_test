@@ -1,6 +1,9 @@
 import router from '../router';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import {
+  statusMatcher,
+} from '../utils/helpers';
 
 router.use('/friends', async (ctx, next) => {
   try {
@@ -17,23 +20,6 @@ router.use('/friends', async (ctx, next) => {
     };
   }
 });
-
-const statusMatcher = (status) => {
-  let number;
-  switch (status) {
-    case 'Pending':
-      number = 2;
-      break;
-    case 'Accepted':
-      number = 3;
-      break;
-    case undefined:
-    default:
-      number = 0;
-      break;
-  }
-  return number;
-};
 
 router.post('/friends/request/:userId', async (ctx, next) => {
   try {

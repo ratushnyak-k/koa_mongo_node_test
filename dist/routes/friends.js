@@ -16,6 +16,8 @@ var _User = require('../models/User');
 
 var _User2 = _interopRequireDefault(_User);
 
+var _helpers = require('../utils/helpers');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 _router2.default.use('/friends', async function (ctx, next) {
@@ -32,23 +34,6 @@ _router2.default.use('/friends', async function (ctx, next) {
     };
   }
 });
-
-var statusMatcher = function statusMatcher(status) {
-  var number = void 0;
-  switch (status) {
-    case 'Pending':
-      number = 2;
-      break;
-    case 'Accepted':
-      number = 3;
-      break;
-    case undefined:
-    default:
-      number = 0;
-      break;
-  }
-  return number;
-};
 
 _router2.default.post('/friends/request/:userId', async function (ctx, next) {
   try {
@@ -82,7 +67,7 @@ _router2.default.post('/friends/request/:userId', async function (ctx, next) {
                 _id: res._id
               };
 
-              response.status = statusMatcher(res.status);
+              response.status = (0, _helpers.statusMatcher)(res.status);
               console.log(response);
               ctx.body = response;
               resolve();
@@ -134,7 +119,7 @@ _router2.default.post('/friends/accept/:userId', async function (ctx, next) {
                 _id: res._id
               };
 
-              response.status = statusMatcher(res.status);
+              response.status = (0, _helpers.statusMatcher)(res.status);
               console.log(response);
               ctx.body = response;
               resolve();
@@ -186,7 +171,7 @@ _router2.default.post('/friends/cancel/:userId', async function (ctx, next) {
                 _id: res._id
               };
 
-              response.status = statusMatcher(res.status);
+              response.status = (0, _helpers.statusMatcher)(res.status);
               console.log(response);
               ctx.body = response;
               resolve();
@@ -238,7 +223,7 @@ _router2.default.post('/friends/deny/:userId', async function (ctx, next) {
                 _id: res._id
               };
 
-              response.status = statusMatcher(res.status);
+              response.status = (0, _helpers.statusMatcher)(res.status);
               console.log(response);
               ctx.body = response;
               resolve();
@@ -290,7 +275,7 @@ _router2.default.post('/friends/remove/:userId', async function (ctx, next) {
                 _id: res._id
               };
 
-              response.status = statusMatcher(res.status);
+              response.status = (0, _helpers.statusMatcher)(res.status);
               console.log(response);
               ctx.body = response;
               resolve();
