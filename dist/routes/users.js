@@ -87,7 +87,7 @@ _router2.default.get('/users/get', async function (ctx, next) {
             reject();
           } else {
             var _user = item.toObject();
-            _user.friendshipStatus = res;
+            _user.friendshipStatus = res || {};
             resolve(_user);
           }
         });

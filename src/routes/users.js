@@ -72,7 +72,7 @@ router.get('/users/get', async (ctx, next) => {
             reject();
           } else {
             let user = item.toObject();
-            user.friendshipStatus = res;
+            user.friendshipStatus = res || {};
             resolve(user);
           }
         });
