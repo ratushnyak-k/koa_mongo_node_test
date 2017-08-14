@@ -62,7 +62,7 @@ router.get('/users/get', async (ctx, next) => {
       offset: +query.offset || 0,
       select: '-password -email -gender -location',
     };
-    const users = await User.paginate(queries, options);
+    let users = await User.paginate(queries, options);
 
     const usersPromises = users.docs.map((item) => {
       return new Promise((resolve, reject) => {
@@ -103,8 +103,8 @@ router.get('/users/get', async (ctx, next) => {
         });
       });
     });
-
-    ctx.body = await Promise.all(usersPromisesWithRequestedStatus);
+    users.docs = await Promise.all(usersPromisesWithRequestedStatus);
+    ctx.body = users;
 
   } catch (error) {
     console.log(error);

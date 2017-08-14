@@ -117,8 +117,8 @@ _router2.default.get('/users/get', async function (ctx, next) {
         });
       });
     });
-
-    ctx.body = await Promise.all(usersPromisesWithRequestedStatus);
+    users.docs = await Promise.all(usersPromisesWithRequestedStatus);
+    ctx.body = users;
   } catch (error) {
     console.log(error);
     ctx.status = 404;
