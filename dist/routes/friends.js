@@ -66,9 +66,7 @@ _router2.default.post('/friends/request/:userId', async function (ctx, next) {
                 status: res.status,
                 _id: res._id
               };
-
               response.status = (0, _helpers.statusMatcher)(res.status);
-              console.log(response);
               ctx.body = response;
               resolve();
             }
@@ -301,11 +299,11 @@ _router2.default.get('/friends/get', async function (ctx, next) {
   var user = await _User2.default.findById(_id);
   var query = ctx.request.query;
 
-  var queries = {
+  var conditions = {
     displayName: new RegExp('' + (query.displayName || ''), 'ig')
   };
   if (query.gender) {
-    queries.gender = query.gender;
+    conditions.gender = query.gender;
   }
   var options = {
     skip: +query.skip || 0,
@@ -313,9 +311,13 @@ _router2.default.get('/friends/get', async function (ctx, next) {
     offset: +query.offset || 0,
     select: '-password -email -gender -location'
   };
+  var findParams = {
+    options: options,
+    conditions: conditions
+  };
   await new Promise(function (resolve, reject) {
     try {
-      user.getFriends(options, function (err, res) {
+      user.getFriends(findParams, function (err, res) {
         if (err) {
           ctx.body = {
             detail: 'Error'
@@ -323,7 +325,12 @@ _router2.default.get('/friends/get', async function (ctx, next) {
           reject();
           console.error(err);
         } else {
-          ctx.body = res;
+          ctx.body = {
+            docs: res,
+            total: res.length,
+            limit: options.limit,
+            offset: options.offset
+          };
           resolve();
         }
       });

@@ -51,9 +51,7 @@ router.post('/friends/request/:userId', async (ctx, next) => {
                 status: res.status,
                 _id: res._id,
               };
-
               response.status = statusMatcher(res.status);
-              console.log(response);
               ctx.body = response;
               resolve();
             }
@@ -280,11 +278,11 @@ router.get('/friends/get', async (ctx, next) => {
   const {_id} = jwt.verify(ctx.request.header.authorization, 'secret').user;
   const user = await User.findById(_id);
   const {query} = ctx.request;
-  const queries = {
+  const conditions = {
     displayName: new RegExp(`${query.displayName || ''}`, 'ig'),
   };
   if (query.gender) {
-    queries.gender = query.gender;
+    conditions.gender = query.gender;
   }
   const options = {
     skip: +query.skip || 0,
@@ -292,9 +290,13 @@ router.get('/friends/get', async (ctx, next) => {
     offset: +query.offset || 0,
     select: '-password -email -gender -location',
   };
+  const findParams = {
+    options,
+    conditions,
+  };
   await new Promise((resolve, reject) => {
     try {
-      user.getFriends(options, (err, res) => {
+      user.getFriends(findParams, (err, res) => {
         if (err) {
           ctx.body = {
             detail: 'Error',
@@ -302,10 +304,15 @@ router.get('/friends/get', async (ctx, next) => {
           reject();
           console.error(err);
         } else {
-          ctx.body = res;
+          ctx.body = {
+            docs: res,
+            total: res.length,
+            limit: options.limit,
+            offset: options.offset,
+          };
           resolve();
         }
-      })
+      });
     } catch (error) {
       console.log(error);
       ctx.status = 401;
