@@ -296,9 +296,37 @@ _router2.default.post('/friends/remove/:userId', async function (ctx, next) {
 });
 
 _router2.default.get('/friends/get', async function (ctx, next) {
+  var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+
+  var user = await _User2.default.findById(_id);
+  var query = ctx.request.query;
+
+  var queries = {
+    displayName: new RegExp('' + (query.displayName || ''), 'ig')
+  };
+  if (query.gender) {
+    queries.gender = query.gender;
+  }
+  var options = {
+    skip: +query.skip || 0,
+    limit: +query.limit || 10,
+    offset: +query.offset || 0,
+    select: '-password -email -gender -location'
+  };
   await new Promise(function (resolve, reject) {
     try {
-      var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+      user.getFriends(options, function (err, res) {
+        if (err) {
+          ctx.body = {
+            detail: 'Error'
+          };
+          reject();
+          console.error(err);
+        } else {
+          ctx.body = res;
+          resolve();
+        }
+      });
     } catch (error) {
       console.log(error);
       ctx.status = 401;

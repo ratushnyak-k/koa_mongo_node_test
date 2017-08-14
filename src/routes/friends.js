@@ -277,9 +277,35 @@ router.post('/friends/remove/:userId', async (ctx, next) => {
 });
 
 router.get('/friends/get', async (ctx, next) => {
+  const {_id} = jwt.verify(ctx.request.header.authorization, 'secret').user;
+  const user = await User.findById(_id);
+  const {query} = ctx.request;
+  const queries = {
+    displayName: new RegExp(`${query.displayName || ''}`, 'ig'),
+  };
+  if (query.gender) {
+    queries.gender = query.gender;
+  }
+  const options = {
+    skip: +query.skip || 0,
+    limit: +query.limit || 10,
+    offset: +query.offset || 0,
+    select: '-password -email -gender -location',
+  };
   await new Promise((resolve, reject) => {
     try {
-      const {_id} = jwt.verify(ctx.request.header.authorization, 'secret').user;
+      user.getFriends(options, (err, res) => {
+        if (err) {
+          ctx.body = {
+            detail: 'Error',
+          };
+          reject();
+          console.error(err);
+        } else {
+          ctx.body = res;
+          resolve();
+        }
+      })
     } catch (error) {
       console.log(error);
       ctx.status = 401;
