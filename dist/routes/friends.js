@@ -369,7 +369,7 @@ _router2.default.get('/friends/requests/get', async function (ctx, next) {
     options: options,
     conditions: conditions
   };
-  await new Promise(function (resolve, reject) {
+  var pendingUsers = await new Promise(function (resolve, reject) {
     try {
       user.getPendingFriends(findParams, function (err, res) {
         if (err) {
@@ -379,13 +379,12 @@ _router2.default.get('/friends/requests/get', async function (ctx, next) {
           reject();
           console.error(err);
         } else {
-          ctx.body = {
+          resolve({
             docs: res,
             total: res.length,
             limit: options.limit,
             offset: options.offset
-          };
-          resolve();
+          });
         }
       });
     } catch (error) {
@@ -399,6 +398,28 @@ _router2.default.get('/friends/requests/get', async function (ctx, next) {
       reject();
     }
   });
+
+  var pendingUsersPromises = pendingUsers.docs.map(function (item) {
+    return new Promise(function (resolve, reject) {
+      user.getRelationship(item._id, function (err, res) {
+        if (err) {
+          ctx.body = {
+            detail: 'Error'
+          };
+          console.error(err);
+          reject();
+        } else {
+          //let user = item.toObject();
+          //let friendship = res ? res.toObject() : {};
+          //friendship.status = statusMatcher(friendship.status);
+          //user.friendship = friendship;
+          console.log(res);
+          resolve(res);
+        }
+      });
+    });
+  });
+  ctx.body = pendingUsers;
 });
 
 exports.default = _router2.default;

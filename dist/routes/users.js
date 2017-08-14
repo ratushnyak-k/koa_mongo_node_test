@@ -80,7 +80,7 @@ _router2.default.get('/users/get', async function (ctx, next) {
 
     var usersPromises = users.docs.map(function (item) {
       return new Promise(function (resolve, reject) {
-        user.getFriendship(item._id, function (err, res) {
+        user.getRelationship(item._id, function (err, res) {
           if (err) {
             ctx.body = {
               detail: 'Error'
@@ -89,16 +89,36 @@ _router2.default.get('/users/get', async function (ctx, next) {
             reject();
           } else {
             var _user = item.toObject();
-            var friendship = res ? res.toObject() : {};
-            friendship.status = (0, _helpers.statusMatcher)(friendship.status);
-            _user.friendship = friendship;
+            _user.friendship = {
+              status: res
+            };
             resolve(_user);
           }
         });
       });
     });
-    users.docs = await Promise.all(usersPromises);
-    ctx.body = users;
+
+    var usersPromisesWithRelations = await Promise.all(usersPromises);
+    var usersPromisesWithRequestedStatus = usersPromisesWithRelations.map(function (item) {
+      return new Promise(function (resolve, reject) {
+        user.getFriendship(item._id, function (err, res) {
+          if (err) {
+            ctx.body = {
+              detail: 'Error'
+            };
+            console.error(err);
+            reject();
+          } else {
+            if (res) {
+              item.friendship.requester = res.requester._id;
+            }
+            resolve(item);
+          }
+        });
+      });
+    });
+
+    ctx.body = await Promise.all(usersPromisesWithRequestedStatus);
   } catch (error) {
     console.log(error);
     ctx.status = 404;

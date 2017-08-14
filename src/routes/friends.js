@@ -347,7 +347,7 @@ router.get('/friends/requests/get', async (ctx, next) => {
     options,
     conditions,
   };
-  await new Promise((resolve, reject) => {
+  const pendingUsers = await new Promise((resolve, reject) => {
     try {
       user.getPendingFriends(findParams, (err, res) => {
         if (err) {
@@ -357,13 +357,12 @@ router.get('/friends/requests/get', async (ctx, next) => {
           reject();
           console.error(err);
         } else {
-          ctx.body = {
+          resolve({
             docs: res,
             total: res.length,
             limit: options.limit,
             offset: options.offset,
-          };
-          resolve();
+          });
         }
       });
     } catch (error) {
@@ -377,6 +376,28 @@ router.get('/friends/requests/get', async (ctx, next) => {
       reject();
     }
   });
+
+  const pendingUsersPromises = pendingUsers.docs.map((item) => {
+    return new Promise((resolve, reject) => {
+      user.getRelationship(item._id, (err, res) => {
+        if (err) {
+          ctx.body = {
+            detail: 'Error',
+          };
+          console.error(err);
+          reject();
+        } else {
+          //let user = item.toObject();
+          //let friendship = res ? res.toObject() : {};
+          //friendship.status = statusMatcher(friendship.status);
+          //user.friendship = friendship;
+          console.log(res);
+          resolve(res);
+        }
+      });
+    });
+  });
+  ctx.body = pendingUsers;
 });
 
 export default router;

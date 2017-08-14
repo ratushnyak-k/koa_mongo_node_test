@@ -62,9 +62,30 @@ router.get('/users/get', async (ctx, next) => {
       offset: +query.offset || 0,
       select: '-password -email -gender -location',
     };
-    let users = await User.paginate(queries, options);
+    const users = await User.paginate(queries, options);
 
     const usersPromises = users.docs.map((item) => {
+      return new Promise((resolve, reject) => {
+        user.getRelationship(item._id, (err, res) => {
+          if (err) {
+            ctx.body = {
+              detail: 'Error',
+            };
+            console.error(err);
+            reject();
+          } else {
+            let user = item.toObject();
+            user.friendship = {
+              status: res,
+            };
+            resolve(user);
+          }
+        });
+      });
+    });
+
+    const usersPromisesWithRelations = await Promise.all(usersPromises);
+    const usersPromisesWithRequestedStatus = usersPromisesWithRelations.map((item) => {
       return new Promise((resolve, reject) => {
         user.getFriendship(item._id, (err, res) => {
           if (err) {
@@ -74,17 +95,16 @@ router.get('/users/get', async (ctx, next) => {
             console.error(err);
             reject();
           } else {
-            let user = item.toObject();
-            let friendship = res ? res.toObject() : {};
-            friendship.status = statusMatcher(friendship.status);
-            user.friendship = friendship;
-            resolve(user);
+            if (res) {
+              item.friendship.requester = res.requester._id;
+            }
+            resolve(item);
           }
         });
       });
     });
-    users.docs = await Promise.all(usersPromises);
-    ctx.body = users;
+
+    ctx.body = await Promise.all(usersPromisesWithRequestedStatus);
 
   } catch (error) {
     console.log(error);
