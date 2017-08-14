@@ -347,7 +347,7 @@ _router2.default.get('/friends/get', async function (ctx, next) {
   });
 });
 
-_router2.default.get('/friends/requests/get', async function (ctx, next) {
+_router2.default.get('/friends/pending/get', async function (ctx, next) {
   var _id = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
 
   var user = await _User2.default.findById(_id);
@@ -401,7 +401,7 @@ _router2.default.get('/friends/requests/get', async function (ctx, next) {
 
   var pendingUsersPromises = pendingUsers.docs.map(function (item) {
     return new Promise(function (resolve, reject) {
-      user.getRelationship(item._id, function (err, res) {
+      user.getFriendship(item._id, function (err, res) {
         if (err) {
           ctx.body = {
             detail: 'Error'
@@ -409,16 +409,17 @@ _router2.default.get('/friends/requests/get', async function (ctx, next) {
           console.error(err);
           reject();
         } else {
-          //let user = item.toObject();
-          //let friendship = res ? res.toObject() : {};
-          //friendship.status = statusMatcher(friendship.status);
-          //user.friendship = friendship;
-          console.log(res);
-          resolve(res);
+          var _user = item.toObject();
+          _user.friendship = {
+            status: 2,
+            requester: res.requester._id
+          };
+          resolve(_user);
         }
       });
     });
   });
+  pendingUsers.docs = await Promise.all(pendingUsersPromises);
   ctx.body = pendingUsers;
 });
 

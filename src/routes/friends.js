@@ -327,7 +327,7 @@ router.get('/friends/get', async (ctx, next) => {
 });
 
 
-router.get('/friends/requests/get', async (ctx, next) => {
+router.get('/friends/pending/get', async (ctx, next) => {
   const {_id} = jwt.verify(ctx.request.header.authorization, 'secret').user;
   const user = await User.findById(_id);
   const {query} = ctx.request;
@@ -379,7 +379,7 @@ router.get('/friends/requests/get', async (ctx, next) => {
 
   const pendingUsersPromises = pendingUsers.docs.map((item) => {
     return new Promise((resolve, reject) => {
-      user.getRelationship(item._id, (err, res) => {
+      user.getFriendship(item._id, (err, res) => {
         if (err) {
           ctx.body = {
             detail: 'Error',
@@ -387,16 +387,17 @@ router.get('/friends/requests/get', async (ctx, next) => {
           console.error(err);
           reject();
         } else {
-          //let user = item.toObject();
-          //let friendship = res ? res.toObject() : {};
-          //friendship.status = statusMatcher(friendship.status);
-          //user.friendship = friendship;
-          console.log(res);
-          resolve(res);
+          let user = item.toObject();
+          user.friendship = {
+            status: 2,
+            requester: res.requester._id,
+          };
+          resolve(user);
         }
       });
     });
   });
+  pendingUsers.docs = await Promise.all(pendingUsersPromises);
   ctx.body = pendingUsers;
 });
 
