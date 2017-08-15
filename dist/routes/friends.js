@@ -315,7 +315,7 @@ _router2.default.get('/friends/get', async function (ctx, next) {
     options: options,
     conditions: conditions
   };
-  await new Promise(function (resolve, reject) {
+  var friends = await new Promise(function (resolve, reject) {
     try {
       user.getFriends(findParams, function (err, res) {
         if (err) {
@@ -325,13 +325,12 @@ _router2.default.get('/friends/get', async function (ctx, next) {
           reject();
           console.error(err);
         } else {
-          ctx.body = {
+          resolve({
             docs: res,
             total: res.length,
             limit: options.limit,
             offset: options.offset
-          };
-          resolve();
+          });
         }
       });
     } catch (error) {
@@ -345,6 +344,29 @@ _router2.default.get('/friends/get', async function (ctx, next) {
       reject();
     }
   });
+
+  var friendsPromises = friends.docs.map(function (item) {
+    return new Promise(function (resolve, reject) {
+      user.getFriendship(item._id, function (err, res) {
+        if (err) {
+          ctx.body = {
+            detail: 'Error'
+          };
+          console.error(err);
+          reject();
+        } else {
+          var _user = item.toObject();
+          _user.friendship = {
+            status: 3,
+            requester: res.requester._id
+          };
+          resolve(_user);
+        }
+      });
+    });
+  });
+  friends.docs = await Promise.all(friendsPromises);
+  ctx.body = friends;
 });
 
 _router2.default.get('/friends/pending/get', async function (ctx, next) {
@@ -409,12 +431,12 @@ _router2.default.get('/friends/pending/get', async function (ctx, next) {
           console.error(err);
           reject();
         } else {
-          var _user = item.toObject();
-          _user.friendship = {
+          var _user2 = item.toObject();
+          _user2.friendship = {
             status: 2,
             requester: res.requester._id
           };
-          resolve(_user);
+          resolve(_user2);
         }
       });
     });
