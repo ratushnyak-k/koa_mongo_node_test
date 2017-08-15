@@ -327,7 +327,6 @@ _router2.default.get('/friends/get', async function (ctx, next) {
         } else {
           resolve({
             docs: res,
-            total: res.length,
             limit: options.limit,
             offset: options.offset
           });
@@ -366,7 +365,21 @@ _router2.default.get('/friends/get', async function (ctx, next) {
     });
   });
   friends.docs = await Promise.all(friendsPromises);
-  ctx.body = friends;
+
+  ctx.body = await new Promise(function (resolve, reject) {
+    _User.mongooseFriends.Friendship.count({
+      '$or': [{ requester: user._id }, { requested: user._id }],
+      status: 'Accepted'
+    }, function (err, res) {
+      if (err) {
+        reject();
+        console.error(err);
+      } else {
+        friends.total = res;
+        resolve(friends);
+      }
+    });
+  });
 });
 
 _router2.default.get('/friends/pending/get', async function (ctx, next) {
@@ -403,7 +416,6 @@ _router2.default.get('/friends/pending/get', async function (ctx, next) {
         } else {
           resolve({
             docs: res,
-            total: res.length,
             limit: options.limit,
             offset: options.offset
           });
@@ -441,8 +453,23 @@ _router2.default.get('/friends/pending/get', async function (ctx, next) {
       });
     });
   });
+
   pendingUsers.docs = await Promise.all(pendingUsersPromises);
-  ctx.body = pendingUsers;
+
+  ctx.body = await new Promise(function (resolve, reject) {
+    _User.mongooseFriends.Friendship.count({
+      '$or': [{ requester: user._id }, { requested: user._id }],
+      status: 'Pending'
+    }, function (err, res) {
+      if (err) {
+        reject();
+        console.error(err);
+      } else {
+        pendingUsers.total = res;
+        resolve(pendingUsers);
+      }
+    });
+  });
 });
 
 exports.default = _router2.default;

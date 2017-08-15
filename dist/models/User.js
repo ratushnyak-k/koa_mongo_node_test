@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.mongooseFriends = undefined;
 
 var _mongoose = require('mongoose');
 
@@ -30,7 +31,7 @@ var options = {
   personModelName: 'User',
   friendshipModelName: 'Friendship'
 };
-var mongooseFriends = new _friendsOfFriends2.default(_mongoose2.default, options);
+var mongooseFriends = exports.mongooseFriends = new _friendsOfFriends2.default(_mongoose2.default, options);
 var userSchema = new _mongoose2.default.Schema({
   displayName: {
     type: String,

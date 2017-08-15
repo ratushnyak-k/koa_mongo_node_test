@@ -1,6 +1,6 @@
 import router from '../router';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import User, { mongooseFriends } from '../models/User';
 import {
   statusMatcher,
 } from '../utils/helpers';
@@ -306,7 +306,6 @@ router.get('/friends/get', async (ctx, next) => {
         } else {
           resolve({
             docs: res,
-            total: res.length,
             limit: options.limit,
             offset: options.offset,
           });
@@ -345,7 +344,24 @@ router.get('/friends/get', async (ctx, next) => {
     });
   });
   friends.docs = await Promise.all(friendsPromises);
-  ctx.body = friends;
+
+  ctx.body = await new Promise((resolve, reject) => {
+    mongooseFriends.Friendship.count({
+      '$or': [
+        {requester: user._id},
+        {requested: user._id},
+      ],
+      status: 'Accepted',
+    }, (err, res) => {
+      if (err) {
+        reject();
+        console.error(err);
+      } else {
+        friends.total = res;
+        resolve(friends)
+      }
+    });
+  });
 });
 
 
@@ -381,7 +397,6 @@ router.get('/friends/pending/get', async (ctx, next) => {
         } else {
           resolve({
             docs: res,
-            total: res.length,
             limit: options.limit,
             offset: options.offset,
           });
@@ -419,8 +434,26 @@ router.get('/friends/pending/get', async (ctx, next) => {
       });
     });
   });
+
   pendingUsers.docs = await Promise.all(pendingUsersPromises);
-  ctx.body = pendingUsers;
+
+  ctx.body = await new Promise((resolve, reject) => {
+    mongooseFriends.Friendship.count({
+      '$or': [
+        {requester: user._id},
+        {requested: user._id},
+      ],
+      status: 'Pending',
+    }, (err, res) => {
+      if (err) {
+        reject();
+        console.error(err);
+      } else {
+        pendingUsers.total = res;
+        resolve(pendingUsers)
+      }
+    });
+  });
 });
 
 export default router;

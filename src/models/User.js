@@ -11,7 +11,7 @@ const options = {
   personModelName: 'User',
   friendshipModelName: 'Friendship',
 };
-const mongooseFriends = new MangooseFOF(mongoose, options);
+export const mongooseFriends = new MangooseFOF(mongoose, options);
 const userSchema = new mongoose.Schema({
   displayName: {
     type: String,
