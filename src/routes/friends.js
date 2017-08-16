@@ -378,6 +378,7 @@ router.get('/friends/pending/get', async (ctx, next) => {
     limit: +query.limit || 10,
     skip: +query.offset || 0,
     select: '-password -email -gender -location',
+    sort: 'requested'
   };
   const findParams = {
     options,
@@ -438,7 +439,6 @@ router.get('/friends/pending/get', async (ctx, next) => {
   ctx.body = await new Promise((resolve, reject) => {
     mongooseFriends.Friendship.count({
       '$or': [
-        {requester: user._id},
         {requested: user._id},
       ],
       status: 'Pending',

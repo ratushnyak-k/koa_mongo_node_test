@@ -396,7 +396,8 @@ _router2.default.get('/friends/pending/get', async function (ctx, next) {
   var options = {
     limit: +query.limit || 10,
     skip: +query.offset || 0,
-    select: '-password -email -gender -location'
+    select: '-password -email -gender -location',
+    sort: 'requested'
   };
   var findParams = {
     options: options,
@@ -456,7 +457,7 @@ _router2.default.get('/friends/pending/get', async function (ctx, next) {
 
   ctx.body = await new Promise(function (resolve, reject) {
     _User.mongooseFriends.Friendship.count({
-      '$or': [{ requester: user._id }, { requested: user._id }],
+      '$or': [{ requested: user._id }],
       status: 'Pending'
     }, function (err, res) {
       if (err) {

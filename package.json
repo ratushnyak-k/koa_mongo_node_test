@@ -12,7 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "friends-of-friends": "^3.1.1",
+    "friends-of-friends": "ratushnyak-k/friends-of-friends",
     "jsonwebtoken": "^7.4.1",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
