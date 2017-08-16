@@ -306,9 +306,8 @@ _router2.default.get('/friends/get', async function (ctx, next) {
     conditions.gender = query.gender;
   }
   var options = {
-    skip: +query.skip || 0,
     limit: +query.limit || 10,
-    offset: +query.offset || 0,
+    skip: +query.offset || 0,
     select: '-password -email -gender -location'
   };
   var findParams = {
@@ -328,7 +327,7 @@ _router2.default.get('/friends/get', async function (ctx, next) {
           resolve({
             docs: res,
             limit: options.limit,
-            offset: options.offset
+            offset: options.skip
           });
         }
       });
@@ -395,9 +394,8 @@ _router2.default.get('/friends/pending/get', async function (ctx, next) {
     conditions.gender = query.gender;
   }
   var options = {
-    skip: +query.skip || 0,
     limit: +query.limit || 10,
-    offset: +query.offset || 0,
+    skip: +query.offset || 0,
     select: '-password -email -gender -location'
   };
   var findParams = {
@@ -417,7 +415,7 @@ _router2.default.get('/friends/pending/get', async function (ctx, next) {
           resolve({
             docs: res,
             limit: options.limit,
-            offset: options.offset
+            offset: options.skip
           });
         }
       });

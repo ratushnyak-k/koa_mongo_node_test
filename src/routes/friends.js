@@ -285,9 +285,8 @@ router.get('/friends/get', async (ctx, next) => {
     conditions.gender = query.gender;
   }
   const options = {
-    skip: +query.skip || 0,
     limit: +query.limit || 10,
-    offset: +query.offset || 0,
+    skip: +query.offset || 0,
     select: '-password -email -gender -location',
   };
   const findParams = {
@@ -307,7 +306,7 @@ router.get('/friends/get', async (ctx, next) => {
           resolve({
             docs: res,
             limit: options.limit,
-            offset: options.offset,
+            offset: options.skip,
           });
         }
       });
@@ -376,9 +375,8 @@ router.get('/friends/pending/get', async (ctx, next) => {
     conditions.gender = query.gender;
   }
   const options = {
-    skip: +query.skip || 0,
     limit: +query.limit || 10,
-    offset: +query.offset || 0,
+    skip: +query.offset || 0,
     select: '-password -email -gender -location',
   };
   const findParams = {
@@ -398,7 +396,7 @@ router.get('/friends/pending/get', async (ctx, next) => {
           resolve({
             docs: res,
             limit: options.limit,
-            offset: options.offset,
+            offset: options.skip,
           });
         }
       });
