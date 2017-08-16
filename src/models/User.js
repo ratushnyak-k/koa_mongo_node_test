@@ -64,12 +64,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
-  friends:
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: options.friendshipModelName,
-    }
-  ,
 });
 userSchema.plugin(mongooseUniqueValidator);
 userSchema.plugin(mangoosePaginate);
