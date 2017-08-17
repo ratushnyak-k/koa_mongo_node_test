@@ -129,10 +129,48 @@ _router2.default.get('/users/get', async function (ctx, next) {
 });
 
 _router2.default.get('/users/:_id', async function (ctx, next) {
+  var myId = _jsonwebtoken2.default.verify(ctx.request.header.authorization, 'secret').user._id;
+  var me = await _User2.default.findById(myId);
   try {
     var _id = ctx.params._id;
 
-    ctx.body = await _User2.default.findOne({ _id: _id }).select('-password');
+    var user = await _User2.default.findById(_id).select('-password');
+
+    var userWithStatus = await new Promise(function (resolve, reject) {
+      me.getRelationship(user._id, function (err, res) {
+        if (err) {
+          ctx.body = {
+            detail: 'Error'
+          };
+          console.error(err);
+          reject();
+        } else {
+          var userData = user.toObject();
+          userData.friendship = {
+            status: res
+          };
+          resolve(userData);
+        }
+      });
+    });
+
+    ctx.body = await new Promise(function (resolve, reject) {
+      me.getFriendship(user._id, function (err, res) {
+        if (err) {
+          ctx.body = {
+            detail: 'Error'
+          };
+          console.error(err);
+          reject();
+        } else {
+          console.log(userWithStatus);
+          if (res) {
+            userWithStatus.friendship.requester = res.requester._id;
+          }
+          resolve(userWithStatus);
+        }
+      });
+    });;
   } catch (error) {
     console.log(error);
     ctx.status = 404;

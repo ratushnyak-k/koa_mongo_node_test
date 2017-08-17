@@ -116,9 +116,47 @@ router.get('/users/get', async (ctx, next) => {
 });
 
 router.get('/users/:_id', async (ctx, next) => {
+  const myId = jwt.verify(ctx.request.header.authorization, 'secret').user._id;
+  const me = await User.findById(myId);
   try {
     const {_id} = ctx.params;
-    ctx.body = await User.findOne({_id}).select('-password');
+    const user = await User.findById(_id).select('-password');
+
+    let userWithStatus = await new Promise((resolve, reject) => {
+      me.getRelationship(user._id, (err, res) => {
+        if (err) {
+          ctx.body = {
+            detail: 'Error',
+          };
+          console.error(err);
+          reject();
+        } else {
+          let userData = user.toObject();
+          userData.friendship = {
+            status: res,
+          };
+          resolve(userData);
+        }
+      });
+    });
+
+    ctx.body = await new Promise((resolve, reject) => {
+      me.getFriendship(user._id, (err, res) => {
+        if (err) {
+          ctx.body = {
+            detail: 'Error',
+          };
+          console.error(err);
+          reject();
+        } else {
+          console.log(userWithStatus);
+          if (res) {
+            userWithStatus.friendship.requester = res.requester._id;
+          }
+          resolve(userWithStatus);
+        }
+      });
+    });;
 
   } catch (error) {
     console.log(error);

@@ -28,10 +28,6 @@ var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
 
-var _koaSocket = require('koa-socket');
-
-var _koaSocket2 = _interopRequireDefault(_koaSocket);
-
 var _index = require('./routes/index');
 
 var _index2 = _interopRequireDefault(_index);
@@ -51,7 +47,6 @@ var _friends2 = _interopRequireDefault(_friends);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var app = new _koa2.default();
-var io = new _koaSocket2.default();
 if (process.env.NODE_ENV !== 'development') {
   app.use((0, _koaCors2.default)());
 }
@@ -66,34 +61,6 @@ app.use(_index2.default.routes());
 app.use(_authorization2.default.routes());
 app.use(_users2.default.routes());
 app.use(_friends2.default.routes());
-
-io.attach(app);
-io.use(async function (ctx, next) {
-  console.log('Socket middleware');
-  var start = new Date();
-  await next();
-  var ms = new Date() - start;
-  console.log('WS ' + ms + 'ms');
-});
-io.use(async function (ctx, next) {
-  ctx.teststring = 'test';
-  await next();
-});
-io.on('connection', function (ctx) {
-  console.log('Join event', ctx.socket.id);
-  io.broadcast('connections', {
-    numConnections: io.connections.size
-  });
-  // app.io.broadcast( 'connections', {
-  //   numConnections: socket.connections.size
-  // })
-});
-io.on('disconnect', function (ctx) {
-  console.log('leave event', ctx.socket.id);
-  io.broadcast('connections', {
-    numConnections: io.connections.size
-  });
-});
 
 _mongoose2.default.Promise = Promise;
 if (process.env.NODE_ENV === 'development') {
